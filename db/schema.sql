@@ -1,36 +1,32 @@
-DROP DATABASE IF EXISTS employees
-CREATE DATABASE employees;
-USE employees;
+DROP TABLE IF EXISTS departments;
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS employees;
 
-DROP TABLE IF EXISTS department;
-DROP TABLE IF EXISTS role;
-DROP TABLE IF EXISTS employee;
-
-CREATE TABLE department (
-    id INTEGER AUTO_INCREMENTPRIMARY KEY,
+CREATE TABLE departments (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(30) NOT NULL,
     CONSTRAINT uc_name unique (name)
 );
 
-CREATE TABLE role (
-    id INTEGER AUTO_INCREMENTPRIMARY KEY,
+CREATE TABLE roles (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(30) NOT NULL,
     salary DECIMAL NOT NULL,
-    department_id INTEGER NOT NULL
-    CONSTRAINT fk_department FOREIGN KEY (department_id) REFERENCES department(id) ON DELETE CASCADE
+    department_id INTEGER NOT NULL,
+    CONSTRAINT fk_department FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE CASCADE
 );
 
-CREATE TABLE employee (
-    id INTEGER AUTO_INCREMENTPRIMARY KEY,
+CREATE TABLE employees (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
     role_id INTEGER NOT NULL,
     manager_id INTEGER,
-    CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES role(id) ON DELETE CASCADE,
-    CONSTRAINT fk_manager FOREIGN KEY (manager_id) REFERENCES employee(id) on DELETE SET NULL
+    CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
+    CONSTRAINT fk_manager FOREIGN KEY (manager_id) REFERENCES employees(id) ON DELETE SET NULL
 );
 
-INSERT INTO department (name)
+INSERT INTO departments (name)
     VALUES
         ('Sales'),
         ('Estimating'),
@@ -39,7 +35,7 @@ INSERT INTO department (name)
         ('Project Management'),
         ('Logistics');
 
-INSERT INTO role (title, salary, department_id)
+INSERT INTO roles (title, salary, department_id)
     VALUES
         ('Salesperson', 80000, 1),
         ('Estimator', 55000, 2),
@@ -52,7 +48,7 @@ INSERT INTO role (title, salary, department_id)
         ('Project Coordinator', 45000, 5),
         ('Logistics Manager', 50000, 6);
 
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
+INSERT INTO employees (first_name, last_name, role_id, manager_id)
     VALUES
         ('Marceline', 'Vampire Queen', 1, NULL ),
         ('Peppermint', 'Butler', 2, 1),
