@@ -59,16 +59,19 @@ const promptMenu = () => {
 const viewDepartments = async() => {
     const [departments] = await Departments.getAllDepartments();
     console.table(departments);
+    promptMenu();
 };
 
 const viewRoles = async() => {
     const [roles] = await Roles.getAllRoles();
     console.table(roles);
+    promptMenu();
 };
 
 const viewEmployees = async() => {
     const [employees] = await Employees.getAllEmployees();
     console.table(employees);
+    promptMenu();
 };
 
 const addDepartment = () => {
@@ -214,7 +217,12 @@ const updateEmployeeRole = () => {
                 }]
             },
             {
-                type: ''
+                type: 'list',
+                name: 'chooseRole',
+                message: `Please select a new role for ${Employee}.`, // not sure if this is correct, will talk to TA for help
+                choices: [{
+                    // insert roles table data
+                }]
             }
         ])
 }
