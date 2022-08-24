@@ -1,9 +1,11 @@
 const inquirer = require('inquirer');
+// const db = require('./db/connection');
 const Department = require('./lib/Department');
-const Employee = require('./lib/Employee');
+const Employees = require('./lib/Employee');
 const Role = require('./lib/Role');
-const table = require('console.table');
 const team = [];
+
+require('console.table');
 
 const promptMenu = () => {
     return inquirer
@@ -26,25 +28,24 @@ const promptMenu = () => {
         ])
         .then(choice => {
             switch (choice.menu) {
-                case 'view all departments':
+                case 'View All Departments':
                     viewDepartments();
                     break;
-                case 'view all roles':
+                case 'View All Roles':
                     viewRoles();
                     break;
-                case 'view all employees':
-                    viewEmployees();
-                    break;
-                case 'add a department':
+                case 'View All Employees':
+                    return viewEmployees();
+                case 'Add A Department':
                     addDepartment();
                     break;
-                case 'add a role':
+                case 'Add A Role':
                     addRole();
                     break;
-                case 'add an employee':
+                case 'Add An Employee':
                     addEmployee();
                     break;
-                case 'update an employee role':
+                case 'Update An Employee Role':
                     updateEmployeeRole();
                     break;
                 default:
@@ -54,6 +55,11 @@ const promptMenu = () => {
             }
         })
 };
+
+const viewEmployees= async() => {
+    const [employees] = await Employees.getAllEmployees();
+    console.table(employees);
+}
 
 promptMenu()
 .catch(err => {
