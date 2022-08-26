@@ -2,6 +2,7 @@ const inquirer = require('inquirer');
 // const db = require('./db/connection');
 const Departments = require('./lib/Department');
 const Employees = require('./lib/Employee');
+const { addNewRole } = require('./lib/Role');
 const Roles = require('./lib/Role');
 const team = [];
 
@@ -22,7 +23,8 @@ const promptMenu = () => {
                     'Add A Department',
                     'Add A Role',
                     'Add An Employee',
-                    'Update An Employee Role'
+                    'Update An Employee Role',
+                    'Quit'
                 ],
             }
         ])
@@ -74,18 +76,18 @@ const viewEmployees = async() => {
     promptMenu();
 };
 
-const addDepartment = () => {
+const addDepartment = async() => {
     console.log(`
     ================
     Add a Department
     ================
     `)
 
-    return inquirer
+    const newDepartment = await inquirer
         .prompt([
             {
                 type: 'input',
-                name: 'department',
+                name: 'name',
                 message: "What is the name of the new department?",
                 validate: nameInput => {
                     if (nameInput) {
@@ -97,20 +99,30 @@ const addDepartment = () => {
                 }
             }
         ])
+        const departmentsData = await Departments.addNewDepartment(newDepartment)
+        const [departments] = await Departments.getAllDepartments();
+        console.table(departments);
+        promptMenu();
 };
 
-const addRole = () => {
+const addRole = async() => {
     console.log(`
     ===========
     Add a Role
     ===========
     `)
 
-    return inquirer
+    const [departments] = await Departments.getAllDepartments();
+    const choices = departments.map(({id, name}) => ({
+        name,
+        value: id        
+    }));
+
+    const newRole = await inquirer
         .prompt([
             {
                 type: 'input',
-                name: 'role',
+                name: 'title',
                 message: "What is the new role you'd like to add?",
                 validate: nameInput => {
                     if (nameInput) {
@@ -136,27 +148,43 @@ const addRole = () => {
             },
             {
                 type: 'list',
-                name: 'departmentId',
+                name: 'department_id',
                 message: "Please choose a department for the new role",
-                choices: [{
-                    //department id data from departments table
-                }],
+                choices
             }
         ])
+        const rolesData = await Roles.addNewRole(newRole);
+        console.log(rolesData);
+        viewRoles();
+        promptMenu();
+        
 }
 
-const addEmployee = () => {
+
+
+const addEmployee = async() => {
     console.log(`
     ===============
     Add an Employee
     ===============
     `)
 
-    return inquirer
+    const [employees] = await Employees.getAllEmployees();
+    const [roles] = await Roles.getAllRoles();
+    const choices = roles.map(({id, title}) => ({
+        name: title,
+        value: id
+    }));
+    const managers = employees.map(({id, first_name, last_name}) => ({
+        name:`${first_name} ${last_name}`,
+        value: id 
+    }));
+
+    const newEmployee = await inquirer
         .prompt([
             {
                 type: 'input',
-                name: 'name',
+                name: 'first_name',
                 message: "What is the employee's name?",
                 validate: nameInput => {
                     if (nameInput) {
@@ -169,7 +197,7 @@ const addEmployee = () => {
             },
             {
                 type: 'input',
-                name: 'lastName',
+                name: 'last_name',
                 message: "What is the employee's last name?",
                 validate: nameInput => {
                     if (nameInput) {
@@ -182,49 +210,60 @@ const addEmployee = () => {
             },
             {
                 type: 'list',
-                name: 'role',
+                name: 'role_id',
                 message: "Please select a role for the new employee.",
-                choices: [{
-                    // insert roles table data
-                }]
+                choices
             },
             {
                 type: 'list',
-                name: 'manager',
+                name: 'manager_id',
                 message: "Please select a manager for the new employee.",
-                choices: [{
-                    // insert managers (or supervisors/superiors) data from employees table
-                }]
+                choices: managers
             }
         ])
+        const employeesData = await Employees.addNewEmployee(newEmployee);
+        console.log(employeesData);
+        viewEmployees();
+        promptMenu();
 }
 
-const updateEmployeeRole = () => {
+const updateEmployeeRole = async() => {
     console.log(`
     ==========================
     Update an Employee's Role
     ==========================
     `)
 
-    return inquirer
+    const [employees] = await Employees.getAllEmployees();
+    const [roles] = await Roles.getAllRoles();
+    const employeeChoices = employees.map(({id, first_name, last_name}) => ({
+        name: `${first_name} ${last_name}`,
+        value: id
+    }));
+    const choices = roles.map(({id, title}) => ({
+        name: title,
+        value: id
+    }));
+
+    const updateEmployee = await inquirer
         .prompt([
             {
                 type: 'list',
                 name: 'employees',
                 message: "Please select an employee to update.",
-                choices: [{
-                    // insert employee table data
-                }]
+                choices: employeeChoices
             },
             {
                 type: 'list',
                 name: 'chooseRole',
-                message: `Please select a new role for ${Employee}.`, // not sure if this is correct, will talk to TA for help
-                choices: [{
-                    // insert roles table data
-                }]
+                message: `Please select a new role for the employee.`,
+                choices
             }
         ])
+        const employeesData = await Employees.updateEmployeeRole(updateEmployee);
+        console.log(employeesData);
+        viewEmployees();
+        promptMenu();
 }
 
 promptMenu()
